@@ -3085,8 +3085,11 @@ PHP_FUNCTION(pfSense_interface_create) {
 	memset(&ifr, 0, sizeof(ifr));
 	strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
 	if (ioctl(PFSENSE_G(s), SIOCIFCREATE2, &ifr) < 0) {
+		errno_t err = errno;
 		array_init(return_value);
 		add_assoc_string(return_value, "error", "Could not create interface");
+		add_assoc_long(return_value, "errno", (long)err);
+		add_assoc_string(return_value, "message", strerror(err));
 	} else {
 		str = zend_string_init(ifr.ifr_name, strlen(ifr.ifr_name), 0);
 		RETURN_STR(str);
@@ -3105,8 +3108,11 @@ PHP_FUNCTION(pfSense_interface_destroy) {
 	memset(&ifr, 0, sizeof(ifr));
 	strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
 	if (ioctl(PFSENSE_G(s), SIOCIFDESTROY, &ifr) < 0) {
+		errno_t err = errno;
 		array_init(return_value);
 		add_assoc_string(return_value, "error", "Could not create interface");
+		add_assoc_long(return_value, "errno", (long)err);
+		add_assoc_string(return_value, "message", strerror(err));
 	} else
 		RETURN_TRUE;
 }
@@ -3174,8 +3180,11 @@ PHP_FUNCTION(pfSense_interface_deladdress) {
 			RETURN_FALSE;
 
 		if (ioctl(PFSENSE_G(inets6), SIOCDIFADDR_IN6, &ifra6) < 0) {
+			errno_t err = errno;
 			array_init(return_value);
 			add_assoc_string(return_value, "error", "Could not delete interface address");
+			add_assoc_long(return_value, "errno", (long)err);
+			add_assoc_string(return_value, "message", strerror(err));
 		} else
 			RETURN_TRUE;
 
@@ -3212,8 +3221,11 @@ PHP_FUNCTION(pfSense_interface_rename) {
 	strlcpy(ifr.ifr_name, ifname, sizeof(ifr.ifr_name));
 	ifr.ifr_data = (caddr_t) newifname;
 	if (ioctl(PFSENSE_G(s), SIOCSIFNAME, (caddr_t) &ifr) < 0) {
+		errno_t err = errno;
 		array_init(return_value);
 		add_assoc_string(return_value, "error", "Could not rename interface");
+		add_assoc_long(return_value, "errno", (long)err);
+		add_assoc_string(return_value, "message", strerror(err));
 	} else
 		RETURN_TRUE;
 }
